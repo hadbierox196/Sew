@@ -59,6 +59,7 @@
             box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
             transition: all 0.3s ease;
             position: relative;
+            z-index: 100;
         }
         
         @media (max-width: 768px) {
@@ -84,10 +85,11 @@
             min-width: 150px;
             display: none;
             z-index: 1000;
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
         }
         
         .dropdown.show {
-            display: block;
+            display: block !important;
             animation: slideDown 0.3s ease;
         }
         
@@ -508,8 +510,10 @@
 
         // Global functions
         window.toggleDropdown = function() {
+            console.log('Toggle dropdown clicked'); // Debug log
             const dropdown = document.getElementById('dropdown');
             dropdown.classList.toggle('show');
+            console.log('Dropdown classes:', dropdown.className); // Debug log
         };
 
         window.openTextModal = function() {
@@ -614,9 +618,4 @@
                     replies: []
                 });
                 
-                document.getElementById('pollTitle').value = '';
-                optionInputs.forEach(input => input.value = '');
-                closeModal('pollModal');
-            } catch (error) {
-                console.error('Error adding document: ', error);
-  
+                document.getEl
