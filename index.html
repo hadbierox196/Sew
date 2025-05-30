@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEW Wall</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, #000000 0%, #1a0000 50%, #000000 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .logo {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            color: #FF0000;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
+            to { text-shadow: 0 0 30px rgba(255, 0, 0, 0.8), 0 0 40px rgba(255, 0, 0, 0.6); }
+        }
+        
+        .add-btn {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #FF0000, #CC0000);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        @media (max-width: 768px) {
+            .add-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+            }
+        }
+        
+        .add-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 0, 0, 0.5);
+        }
+        
+        .dropdown {
+            position: absolute;
+            top: 70px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #FF0000;
+            border-radius: 10px;
+            min-width: 150px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .dropdown.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .dropdown-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.2);
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(255, 0, 0, 0.1);
+        }
+        
+        .posts-container {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        
+        .post {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .post:hover {
+            border-color: rgba(255, 0, 0, 0.6);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.2);
+        }
+        
+        .post-title {
+            color: #FF0000;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .post-content {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .poll-options {
+            margin: 15px 0;
+        }
+        
+        .poll-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .poll-option:hover {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: rgba(255, 0, 0, 0.5);
+        }
+        
+        .poll-percentage {
+            font-weight: 700;
+            color: #FF0000;
+        }
+        
+        .post-meta {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(26, 0, 0, 0.95));
+            border: 2px solid #FF0000;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            color: #FF0000;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #FF0000;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #FF0000;
+            font-weight: 700;
+        }
+        
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #FF0000;
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .poll-options-container {
+            margin: 15px 0;
+        }
+        
+        .poll-option-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .poll-option-input input {
+            flex: 1;
+        }
+        
+        .remove-option {
+            background: #FF0000;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .remove-option:hover {
+            background: #CC0000;
+        }
+        
+        .add-option {
+            background: transparent;
+            border: 2px solid #FF0000;
+            color: #FF0000;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .add-option:hover {
+            background: #FF0000;
+            color: white;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(45deg, #FF0000, #CC0000);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            transition: transform 0.3s ease;
+            width: 100%;
+        }
+        
+        .submit-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .replies-section {
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 0, 0, 0.3);
+            padding-top: 15px;
+        }
+        
+        .reply {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid #FF0000;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .reply-form {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .reply-input {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .reply-btn {
+            background: #FF0000;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #FF0000;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .posts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: 20px;
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">SEW WALL</div>
+            <div style="position: relative;">
+                <button class="add-btn" onclick="toggleDropdown()">+</button>
+                <div class="dropdown" id="dropdown">
+                    <div class="dropdown-item" onclick="openTextModal()">📝 Text</div>
+                    <div class="dropdown-item" onclick="openPollModal()">📊 Poll</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="posts-container" id="postsContainer">
+            <div class="loading">Loading posts...</div>
+        </div>
+    </div>
+
+    <!-- Text Modal -->
+    <div class="modal" id="textModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Create Text Post</div>
+                <button class="close-btn" onclick="closeModal('textModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Title</label>
+                <input type="text" class="form-input" id="textTitle" placeholder="Enter your title...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Content</label>
+                <textarea class="form-textarea" id="textContent" placeholder="Share your thoughts..."></textarea>
+            </div>
+            <button class="submit-btn" onclick="submitTextPost()">Post</button>
+        </div>
+    </div>
+
+    <!-- Poll Modal -->
+    <div class="modal" id="pollModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Create Poll</div>
+                <button class="close-btn" onclick="closeModal('pollModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Poll Question</label>
+                <input type="text" class="form-input" id="pollTitle" placeholder="What's your question?">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Options</label>
+                <div class="poll-options-container" id="pollOptionsContainer">
+                    <div class="poll-option-input">
+                        <input type="text" class="form-input" placeholder="Option 1">
+                        <button class="remove-option" onclick="removeOption(this)" style="display: none;">Remove</button>
+                    </div>
+                    <div class="poll-option-input">
+                        <input type="text" class="form-input" placeholder="Option 2">
+                        <button class="remove-option" onclick="removeOption(this)" style="display: none;">Remove</button>
+                    </div>
+                </div>
+                <button class="add-option" onclick="addPollOption()">+ Add Option</button>
+            </div>
+            <button class="submit-btn" onclick="submitPoll()">Create Poll</button>
+        </div>
+    </div>
+
+    <!-- Post Detail Modal -->
+    <div class="modal" id="postModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="postModalTitle">Post Details</div>
+                <button class="close-btn" onclick="closeModal('postModal')">&times;</button>
+            </div>
+            <div id="postModalContent"></div>
+            <div class="replies-section" id="repliesSection">
+                <h3 style="color: #FF0000; margin-bottom: 15px;">Replies</h3>
+                <div id="repliesList"></div>
+                <div class="reply-form">
+                    <input type="text" class="reply-input" id="replyInput" placeholder="Write a reply...">
+                    <button class="reply-btn" onclick="submitReply()">Reply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, arrayUnion, onSnapshot, orderBy, query, increment } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5J8N4MDBKJBO6Ey_UyInB1j70yyff8ds",
+            authDomain: "sewwall-ef705.firebaseapp.com",
+            projectId: "sewwall-ef705",
+            storageBucket: "sewwall-ef705.firebasestorage.app",
+            messagingSenderId: "886460142524",
+            appId: "1:886460142524:web:5bafdd329bd6dff1a7d1b9",
+            measurementId: "G-YE1SNSEBBY"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        let currentPostId = null;
+        let posts = [];
+
+        // Global functions
+        window.toggleDropdown = function() {
+            const dropdown = document.getElementById('dropdown');
+            dropdown.classList.toggle('show');
+        };
+
+        window.openTextModal = function() {
+            document.getElementById('textModal').classList.add('show');
+            document.getElementById('dropdown').classList.remove('show');
+        };
+
+        window.openPollModal = function() {
+            document.getElementById('pollModal').classList.add('show');
+            document.getElementById('dropdown').classList.remove('show');
+        };
+
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        };
+
+        window.addPollOption = function() {
+            const container = document.getElementById('pollOptionsContainer');
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'poll-option-input';
+            optionDiv.innerHTML = `
+                <input type="text" class="form-input" placeholder="Option ${container.children.length + 1}">
+                <button class="remove-option" onclick="removeOption(this)">Remove</button>
+            `;
+            container.appendChild(optionDiv);
+            
+            // Show remove buttons when there are more than 2 options
+            const removeButtons = container.querySelectorAll('.remove-option');
+            if (removeButtons.length > 2) {
+                removeButtons.forEach(btn => btn.style.display = 'block');
+            }
+        };
+
+        window.removeOption = function(button) {
+            const container = document.getElementById('pollOptionsContainer');
+            if (container.children.length > 2) {
+                button.parentElement.remove();
+                
+                // Hide remove buttons if only 2 options left
+                if (container.children.length <= 2) {
+                    container.querySelectorAll('.remove-option').forEach(btn => btn.style.display = 'none');
+                }
+            }
+        };
+
+        window.submitTextPost = async function() {
+            const title = document.getElementById('textTitle').value.trim();
+            const content = document.getElementById('textContent').value.trim();
+            
+            if (!title || !content) {
+                alert('Please fill in both title and content');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, 'posts'), {
+                    type: 'text',
+                    title: title,
+                    content: content,
+                    timestamp: new Date(),
+                    replies: []
+                });
+                
+                document.getElementById('textTitle').value = '';
+                document.getElementById('textContent').value = '';
+                closeModal('textModal');
+            } catch (error) {
+                console.error('Error adding document: ', error);
+                alert('Error posting. Please try again.');
+            }
+        };
+
+        window.submitPoll = async function() {
+            const title = document.getElementById('pollTitle').value.trim();
+            const optionInputs = document.querySelectorAll('#pollOptionsContainer input');
+            const options = Array.from(optionInputs)
+                .map(input => input.value.trim())
+                .filter(option => option !== '');
+            
+            if (!title) {
+                alert('Please enter a poll question');
+                return;
+            }
+            
+            if (options.length < 2) {
+                alert('Please provide at least 2 options');
+                return;
+            }
+
+            const pollOptions = options.map(option => ({
+                text: option,
+                votes: 0
+            }));
+
+            try {
+                await addDoc(collection(db, 'posts'), {
+                    type: 'poll',
+                    title: title,
+                    options: pollOptions,
+                    totalVotes: 0,
+                    timestamp: new Date(),
+                    replies: []
+                });
+                
+                document.getElementById('pollTitle').value = '';
+                optionInputs.forEach(input => input.value = '');
+                closeModal('pollModal');
+            } catch (error) {
+                console.error('Error adding document: ', error);
+  
